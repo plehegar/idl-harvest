@@ -30,6 +30,7 @@
 
 var page = require('webpage').create();
 var system = require('system');
+var debug = 0;
 
 var number_of_try = 20;
 
@@ -38,6 +39,10 @@ if (system.args[1] === undefined
     console.error('[error] wrapper.phjs: Missing arguments');    
     console.error('[error]   use phantomjs wrapper.phjs <file.js> <URL>');    
     phantom.exit(1);
+}
+
+if (debug) {
+   console.error('[debug] wrapper.phjs: trying ' + system.args[2]);
 }
 
 function result_handler() {
@@ -52,6 +57,9 @@ function result_handler() {
     }
     if (results === "WRAPPER:TRY_AGAIN") {
       if (number_of_try-- > 0) {
+        if (debug) {
+      	  console.error('[debug] wrapper.phjs: new attempts [' + number_of_try + ']');
+        }
         window.setTimeout(function() { result_handler(); }, 100);	
       } else {
     	console.error('[error] wrapper.phjs: giving up after several attempts ' + system.args[2]);
@@ -61,7 +69,9 @@ function result_handler() {
     	console.error('[error] wrapper.phjs: giving up on ' + system.args[2]);
         phantom.exit(4);
     } else {
-    	console.error('[error] got results! ' + typeof results);
+        if (debug) {
+     	  console.error('[debug] Result is of type ' + typeof results);
+        }
 	try {
 	    switch (typeof results) {
 	    case "boolean":
@@ -85,17 +95,33 @@ function result_handler() {
     }
 }
 
+page.onResourceError = function(resourceError) {
+    if (debug) {
+      console.error('[debug] wrapper.phjs: page.open ' + resourceError.errorString + ' ' + resourceError.url);
+    }
+};
+
+
 page.open(system.args[2], function (status) {
+    if (debug) {
+      console.error('[debug] wrapper.phjs: page.open ' + system.args[2]);
+    }
+
     if (status !== 'success') {
         console.error('[error] wrapper.phjs: unable to access ' + system.args[2]);
 	phantom.exit(1);
     } else {
-        console.error('[error] wrapper.phjs: unable to access ' + system.args[2]);
+        if (debug) {
+          console.error('[debug] wrapper.phjs: success ' + system.args[2]);
+        }
 	var inject = page.injectJs(system.args[1]);
 	if (inject) {
+            if (debug) {
+              console.error('[debug] wrapper.phjs: injected ' + system.args[1]);
+            }
 	    result_handler();	    
 	} else {
-	    console.error('[error] wrapper.phjs: unable to access ' + system.args[1]);
+	    console.error('[error] wrapper.phjs: unable to inject ' + system.args[1]);
 	    phantom.exit(2);
 	}
     }
