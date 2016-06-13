@@ -17,18 +17,28 @@
 */
 
 function __result_handler() {
-    var done = (!!document.respecDone ||
-		(document.head.querySelectorAll('script[class="remove"]').length == 0));    
-    if (!done)	
-	return "WRAPPER:TRY_AGAIN";
-    else {
-	var list = document.querySelectorAll("pre[class=idl]"), webidl = [], i;
-	// for audio, crypto, and fileapi
-	if (list.length == 0) list = document.querySelectorAll("code[class=idl-code]");
-	for (i = 0; i < list.length; i++) webidl.push(list[i].textContent);
-	if (webidl.length == 0)
-	    return "WRAPPER:EXIT";
-	else
-	    return webidl.join('\n');	
+  var done = (!!document.respecDone ||
+    (document.head.querySelectorAll('script[class="remove"]').length === 0));
+  if (!done)
+    return "WRAPPER:TRY_AGAIN";
+  else {
+    var list = document.querySelectorAll("pre[class=idl]"), webidl = [], i;
+
+    // for bikeshed
+    if (list.length === 0) {
+      list = document.querySelectorAll("pre.idl.def");
     }
+    // for audio, crypto, and fileapi
+    if (list.length === 0) {
+      list = document.querySelectorAll("code[class=idl-code]");
+    }
+    for (i = 0; i < list.length; i++) {
+      webidl.push(list[i].textContent);
+    }
+    if (webidl.length === 0) {
+      return "WRAPPER:EXIT";
+    } else {
+      return webidl.join('\n');
+    }
+  }
 }
