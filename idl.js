@@ -33,7 +33,13 @@ function __result_handler() {
       list = document.querySelectorAll("code[class=idl-code]");
     }
     for (i = 0; i < list.length; i++) {
-      webidl.push(list[i].textContent);
+      var pre = list[i];
+      var panels = pre.querySelectorAll("span.dfn-panel");
+      for (var j = 0; j < panels.length; j++) {
+        var panel = panels[j];
+        panel.parentNode.removeChild(panel);
+      }
+      webidl.push(pre.textContent);
     }
     if (webidl.length === 0) {
       return "WRAPPER:EXIT";
